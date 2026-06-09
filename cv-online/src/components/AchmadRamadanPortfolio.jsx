@@ -3,11 +3,10 @@ import { useState } from "react";
 // ─── DATA ───────────────────────────────────────────────────────────────────
 
 const skills = [
-  { name: "HTML & CSS",     level: 88, note: "familiar" },
+  { name: "HTML & CSS",     level: 66, note: "familiar" },
   { name: "JavaScript",     level: 75, note: "familiar" },
-  { name: "React.js",       level: 65, note: "belajar aktif" },
-  { name: "Tailwind CSS",   level: 70, note: "familiar" },
-  { name: "PHP / Laravel",  level: 60, note: "belajar aktif" },
+  { name: "React.js",       level: 65, note: "familiar" },
+  { name: "PHP / Laravel",  level: 60, note: "familiar" },
   { name: "MySQL",          level: 68, note: "familiar" },
   { name: "Git & GitHub",   level: 72, note: "familiar" },
   { name: "Figma (basic)",  level: 50, note: "dasar" },
@@ -22,6 +21,7 @@ const projects = [
     status: "live",
     statusLabel: "selesai · proyek kuliah",
     link: "#",
+    image: "/images/absensi-preview.png", // ganti dengan path screenshot proyekmu
   },
   {
     num: "02",
@@ -31,6 +31,7 @@ const projects = [
     status: "live",
     statusLabel: "live · proyek mandiri",
     link: "#",
+    image: "/images/umkm-preview.png", // ganti dengan path screenshot proyekmu
   },
   {
     num: "03",
@@ -40,6 +41,7 @@ const projects = [
     status: "wip",
     statusLabel: "dalam pengembangan",
     link: "#",
+    image: null, // belum ada gambar — akan tampil placeholder otomatis
   },
 ];
 
@@ -70,7 +72,7 @@ function SectionLabel({ children, color = "#34d399" }) {
 function ProjectStatus({ status, label }) {
   const isLive = status === "live";
   return (
-    <div style={{ display: "flex", alignItems: "center", gap: 5, marginTop: 8 }}>
+    <div style={{ display: "flex", alignItems: "center", gap: 5, marginTop: 10 }}>
       <span
         style={{
           width: 5,
@@ -93,10 +95,39 @@ function ProjectStatus({ status, label }) {
   );
 }
 
+// Placeholder saat gambar belum tersedia atau gagal load
+function ProjectImagePlaceholder({ num }) {
+  const icons = { "01": "📋", "02": "🌐", "03": "✅" };
+  return (
+    <div style={s.projectImgPlaceholder}>
+      <div style={{ textAlign: "center" }}>
+        <div style={{ fontSize: 32, marginBottom: 6, opacity: 0.3 }}>
+          {icons[num] || "📁"}
+        </div>
+        <div
+          style={{
+            fontFamily: "'Space Mono', monospace",
+            fontSize: 9,
+            color: "rgba(52,211,153,0.35)",
+            letterSpacing: "0.08em",
+          }}
+        >
+          no preview
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // ─── MAIN COMPONENT ─────────────────────────────────────────────────────────
 
 export default function Portfolio() {
   const [hoveredProject, setHoveredProject] = useState(null);
+  const [imgErrors, setImgErrors] = useState({});
+
+  const handleImgError = (num) => {
+    setImgErrors((prev) => ({ ...prev, [num]: true }));
+  };
 
   return (
     <div style={s.portfolio}>
@@ -235,6 +266,8 @@ export default function Portfolio() {
         <div style={s.projectsList}>
           {projects.map((p, i) => {
             const hovered = hoveredProject === i;
+            const showPlaceholder = !p.image || imgErrors[p.num];
+
             return (
               <a
                 key={p.num}
@@ -246,17 +279,37 @@ export default function Portfolio() {
                 onMouseEnter={() => setHoveredProject(i)}
                 onMouseLeave={() => setHoveredProject(null)}
               >
-                <div>
-                  <div style={s.projectNum}>{p.num}</div>
+                {/* ── Thumbnail ── */}
+                <div style={s.projectThumb}>
+                  {showPlaceholder ? (
+                    <ProjectImagePlaceholder num={p.num} />
+                  ) : (
+                    <img
+                      src={p.image}
+                      alt={`Preview ${p.title}`}
+                      style={s.projectImg}
+                      onError={() => handleImgError(p.num)}
+                    />
+                  )}
+                  {/* Overlay nomor proyek */}
+                  <div style={s.projectNumBadge}>{p.num}</div>
+                  {/* Overlay gelap saat hover */}
+                  {hovered && <div style={s.projectThumbOverlay} />}
+                </div>
+
+                {/* ── Detail ── */}
+                <div style={s.projectDetail}>
                   <div style={s.projectTitle}>{p.title}</div>
                   <div style={s.projectDesc}>{p.desc}</div>
-                  <div style={s.tagWrap}>
+                  <div style={{ ...s.tagWrap, marginTop: 12 }}>
                     {p.tags.map((t) => (
                       <span key={t} style={s.tag}>{t}</span>
                     ))}
                   </div>
                   <ProjectStatus status={p.status} label={p.statusLabel} />
                 </div>
+
+                {/* ── Arrow ── */}
                 <div style={{ ...s.projectArrow, ...(hovered ? s.projectArrowHover : {}) }}>
                   ↗
                 </div>
@@ -365,12 +418,84 @@ const s = {
 
   // projects
   projectsList: { display: "flex", flexDirection: "column", gap: "1rem" },
-  projectCard: { background: "rgba(255,255,255,0.03)", border: "0.5px solid rgba(255,255,255,0.08)", borderRadius: 12, padding: "1.5rem 1.75rem", display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: "1rem", textDecoration: "none", color: "inherit", transition: "border-color 0.2s, background 0.2s" },
-  projectCardHover: { borderColor: ACCENT_BOR, background: ACCENT_BG },
-  projectNum: { fontFamily: "'Space Mono', monospace", fontSize: 11, color: "rgba(52,211,153,0.45)", marginBottom: "0.5rem" },
+
+  projectCard: {
+    background: "rgba(255,255,255,0.03)",
+    border: "0.5px solid rgba(255,255,255,0.08)",
+    borderRadius: 12,
+    padding: 0,
+    display: "flex",
+    alignItems: "stretch",
+    gap: 0,
+    overflow: "hidden",
+    textDecoration: "none",
+    color: "inherit",
+    transition: "border-color 0.2s, background 0.2s",
+  },
+  projectCardHover: {
+    borderColor: ACCENT_BOR,
+    background: ACCENT_BG,
+  },
+
+  // thumbnail kiri
+  projectThumb: {
+    width: 180,
+    minWidth: 180,
+    background: "#0d1f18",
+    position: "relative",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    overflow: "hidden",
+    flexShrink: 0,
+  },
+  projectImg: {
+    width: "100%",
+    height: "100%",
+    objectFit: "cover",
+    display: "block",
+    minHeight: 140,
+  },
+  projectImgPlaceholder: {
+    width: "100%",
+    minHeight: 140,
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  projectThumbOverlay: {
+    position: "absolute",
+    inset: 0,
+    background: "rgba(52,211,153,0.06)",
+    pointerEvents: "none",
+  },
+
+  // badge nomor di atas thumbnail
+  projectNumBadge: {
+    position: "absolute",
+    top: 8,
+    left: 8,
+    background: "rgba(10,10,15,0.75)",
+    border: "0.5px solid rgba(52,211,153,0.3)",
+    borderRadius: 4,
+    padding: "2px 7px",
+    fontFamily: "'Space Mono', monospace",
+    fontSize: 10,
+    color: GREEN,
+    backdropFilter: "blur(4px)",
+  },
+
+  // detail kanan
+  projectDetail: {
+    flex: 1,
+    padding: "1.25rem 1.5rem",
+    display: "flex",
+    flexDirection: "column",
+    justifyContent: "center",
+  },
   projectTitle: { fontSize: "1rem", fontWeight: 700, marginBottom: "0.4rem", color: "#e8e4f0" },
   projectDesc: { fontSize: 13, color: "rgba(232,228,240,0.5)", lineHeight: 1.65 },
-  projectArrow: { fontSize: 18, color: "rgba(232,228,240,0.15)", flexShrink: 0, transition: "color 0.2s, transform 0.2s" },
+  projectArrow: { fontSize: 18, color: "rgba(232,228,240,0.15)", flexShrink: 0, transition: "color 0.2s, transform 0.2s", alignSelf: "center", paddingRight: "1.25rem" },
   projectArrowHover: { color: GREEN, transform: "translate(2px, -2px)" },
 
   // contact

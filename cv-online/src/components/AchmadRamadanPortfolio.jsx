@@ -5,11 +5,12 @@ import { useState } from "react";
 const skills = [
   { name: "HTML & CSS",     level: 66, note: "familiar" },
   { name: "JavaScript",     level: 75, note: "familiar" },
-  { name: "React.js",       level: 65, note: "familiar" },
-  { name: "PHP / Laravel",  level: 60, note: "familiar" },
-  { name: "MySQL",          level: 68, note: "familiar" },
+  { name: "PHP",            level: 60, note: "familiar" },
+  { name: "Python",         level: 80, note: "mendalami" },
+  { name: "Java",           level: 50, note: "dasar" },
+  { name: "MySQL",          level: 79, note: "mendalami" },
   { name: "Git & GitHub",   level: 72, note: "familiar" },
-  { name: "Figma (basic)",  level: 50, note: "dasar" },
+  { name: "Figma (basic)",  level: 35, note: "dasar" },
 ];
 
 const projects = [

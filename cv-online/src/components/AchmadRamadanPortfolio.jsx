@@ -110,8 +110,8 @@ const projects = [
       role: "full-stack developer",
       screenshots: [
         "/cash_flow/image.png",
-        "/cash_flow/Screenshot 2026-06-10 110123.png",
-        "/cash_flow/Screenshot 2026-06-10 110135.png",
+        "/cash_flow/Screenshot 2026-06-10 113243.png",
+        "/cash_flow/Screenshot 2026-06-10 113310.png",
       ],
     },
   },
